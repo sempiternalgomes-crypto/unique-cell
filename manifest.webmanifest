@@ -1,0 +1,14 @@
+{
+  "name": "Unique Cell",
+  "short_name": "Unique Cell",
+  "description": "Consulta de produtos por código de barras",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "IMG_6224.jpeg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" }
+  ]
+}

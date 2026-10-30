@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Unique Cell">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/jpeg" href="./IMG_6224.jpeg">
+<link rel="apple-touch-icon" href="./IMG_6224.jpeg">
+<title>Unique Cell · Consulta de produtos</title>
+<style>
+:root{
+  --bg:#111; --surface:#1d1d1d; --field:#292929; --line:#3a3a3a;
+  --text:#f7f7f7; --muted:#a9a9a9; --yellow:#F5C400; --on-yellow:#111; --red:#b33030; --green:#2e9b57;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.35}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{background:#242424;border-bottom:3px solid var(--yellow);padding:calc(14px + env(safe-area-inset-top)) 16px 12px}
+.brand{display:flex;align-items:center;gap:12px;max-width:720px;margin:auto}
+.brand img{width:46px;height:46px;border-radius:10px;object-fit:contain;background:#000}
+.brand h1{margin:0;font-size:22px;color:var(--yellow);letter-spacing:-.4px}
+.brand p{margin:2px 0 0;font-size:12px;color:#cfcfcf}
+main{max-width:720px;margin:auto;padding:14px 14px calc(40px + env(safe-area-inset-bottom))}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:13px 4px;font-weight:700;font-size:14px}
+.tab.active{background:var(--yellow);color:var(--on-yellow);border-color:var(--yellow)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h2{margin:0 0 12px;font-size:18px}
+.muted{color:var(--muted);font-size:13px}
+.btn{border:0;border-radius:12px;padding:14px 16px;font-weight:800;font-size:16px}
+.btn.primary{background:var(--yellow);color:var(--on-yellow)}
+.btn.secondary{background:var(--field);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:var(--red);color:#fff}
+.btn.big{width:100%;padding:18px 16px;font-size:18px}
+.btn.small{padding:9px 12px;font-size:14px;border-radius:10px}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.stack{display:flex;flex-direction:column;gap:10px}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+input[type=text],input[type=search],input:not([type]),textarea{width:100%;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:14px 12px;font-size:17px}
+input:focus{outline:2px solid var(--yellow);outline-offset:0}
+.field{margin-bottom:14px}
+.inline{display:flex;gap:8px}
+.inline input{flex:1;min-width:0}
+.inline .btn{flex:none;padding:0 14px}
+.notice{border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:14px;background:#33290a;border:1px solid #7a6210;color:#ffe48a}
+.notice.warn{background:#3a1c1c;border-color:#7a2d2d;color:#ffc9c9}
+.notice[hidden]{display:none}
+.hint{font-size:13px;margin-top:6px;color:var(--yellow)}
+.hint[hidden]{display:none}
+/* resultado da consulta */
+.result{border-radius:16px;padding:20px 16px;text-align:center;margin-top:14px;background:#14210f;border:2px solid var(--green)}
+.result.nf{background:#2a1f0a;border-color:var(--yellow)}
+.result .rname{font-size:22px;font-weight:800;overflow-wrap:anywhere}
+.result .rprice{font-size:46px;font-weight:900;color:var(--yellow);margin:8px 0;letter-spacing:-1px}
+.result .rmeta{font-size:16px;color:#ddd;margin:4px 0}
+.result .rcode{font-size:12px;color:var(--muted);margin-top:8px}
+.result .btn{margin-top:14px}
+/* lista */
+.list{display:grid;gap:10px;margin-top:12px}
+.item{background:var(--field);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.item .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.item .nm{font-weight:800;overflow-wrap:anywhere}
+.item .pr{font-weight:900;color:var(--yellow);white-space:nowrap}
+.item .mt{font-size:12px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.item .acts{display:flex;gap:8px;margin-top:10px}
+.empty{text-align:center;color:var(--muted);padding:22px 10px;border:1px dashed var(--line);border-radius:14px;margin-top:12px}
+details{margin-top:6px}
+summary{cursor:pointer;font-weight:700;color:var(--yellow)}
+details p{margin:8px 0 0}
+/* scanner em tela cheia */
+.modal{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.modal[hidden]{display:none}
+.scanbox{position:relative;flex:1;min-height:0;background:#000;overflow:hidden}
+.scanbox video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.reticle{position:absolute;left:8%;right:8%;top:34%;bottom:34%;border:3px solid var(--yellow);border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.45);pointer-events:none}
+.reticle::after{content:"";position:absolute;left:6%;right:6%;top:50%;height:2px;background:rgba(245,196,0,.8)}
+.scanbar{padding:14px;background:#111;border-top:1px solid #333}
+.scanbar p{margin:0 0 12px;text-align:center;font-size:15px}
+.busy{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+.busy[hidden]{display:none}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;color:#111;font-weight:700;padding:12px 18px;border-radius:999px;z-index:70;max-width:90%;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.toast[hidden]{display:none}
+</style>
+</head>
+<body>
+<header><div class="brand">
+  <img src="./IMG_6224.jpeg" alt="" onerror="this.style.display='none'">
+  <div><h1>Unique Cell</h1><p>Consulta de produtos</p></div>
+</div></header>
+
+<main>
+  <div class="notice warn" id="inAppWarn" hidden>Você abriu dentro de outro aplicativo (WhatsApp, Instagram…), que costuma bloquear a câmera. Abra este endereço no <b>Safari</b> (iPhone) ou no <b>Chrome</b> (Android).</div>
+
+  <div class="tabs">
+    <button class="tab active" data-panel="consult">🔎 Consultar</button>
+    <button class="tab" data-panel="register">➕ Cadastrar</button>
+    <button class="tab" data-panel="list">📋 Produtos</button>
+  </div>
+
+  <!-- CONSULTAR -->
+  <section class="panel active" id="panel-consult">
+    <div class="notice backup-notice" hidden></div>
+    <div class="card">
+      <div class="stack">
+        <button class="btn primary big" id="consultScan">📷 Escanear código de barras</button>
+        <button class="btn secondary" id="consultPhoto">📸 Tirar foto do código</button>
+      </div>
+      <div class="field" style="margin-top:16px;margin-bottom:0">
+        <label for="consultCode">Ou digite o código</label>
+        <div class="inline">
+          <input id="consultCode" inputmode="numeric" autocomplete="off" placeholder="Ex.: 7891234567895">
+          <button class="btn primary" id="consultGo">Buscar</button>
+        </div>
+      </div>
+      <div id="consultResult"></div>
+    </div>
+  </section>
+
+  <!-- CADASTRAR -->
+  <section class="panel" id="panel-register">
+    <div class="card">
+      <h2 id="formTitle">Cadastrar produto</h2>
+      <form id="form" autocomplete="off">
+        <input type="hidden" id="editId">
+        <div class="field">
+          <label for="fCode">Código de barras</label>
+          <div class="inline">
+            <input id="fCode" inputmode="numeric" placeholder="Escaneie ou digite">
+            <button class="btn secondary" type="button" id="regScan" title="Escanear com a câmera">📷</button>
+            <button class="btn secondary" type="button" id="regPhoto" title="Tirar foto do código">📸</button>
+          </div>
+          <div class="hint" id="dupHint" hidden></div>
+        </div>
+        <div class="field">
+          <label for="fName">Nome do produto *</label>
+          <input id="fName" required placeholder="Ex.: Mouse sem fio Logitech">
+        </div>
+        <div class="field">
+          <label for="fPrice">Preço (R$) *</label>
+          <input id="fPrice" inputmode="decimal" required placeholder="Ex.: 49,90">
+        </div>
+        <div class="field">
+          <label for="fWarranty">Garantia ou validade (opcional)</label>
+          <input id="fWarranty" placeholder="Ex.: 90 dias  ou  12/2027">
+        </div>
+        <div class="stack">
+          <button class="btn primary big" type="submit" id="saveBtn">Salvar produto</button>
+          <button class="btn secondary" type="button" id="cancelEdit" hidden>Cancelar edição</button>
+        </div>
+      </form>
+      <p class="muted" id="lastSaved" style="margin-top:12px"></p>
+    </div>
+  </section>
+
+  <!-- PRODUTOS -->
+  <section class="panel" id="panel-list">
+    <div class="notice backup-notice" hidden></div>
+    <div class="card">
+      <h2>Produtos cadastrados (<span id="count">0</span>)</h2>
+      <input type="search" id="listSearch" placeholder="Buscar por nome ou código…">
+      <div class="list" id="listBox"></div>
+    </div>
+    <div class="card">
+      <h2>Cópia de segurança</h2>
+      <p class="muted">Os produtos ficam salvos neste aparelho. Faça uma cópia de vez em quando para não perder nada se trocar de celular ou limpar o navegador.</p>
+      <div class="row" style="margin-top:12px">
+        <button class="btn secondary" id="exportBtn">⬇ Exportar</button>
+        <button class="btn secondary" id="importBtn">⬆ Importar</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <p class="muted" id="backupInfo" style="margin-top:10px"></p>
+    </div>
+    <div class="card">
+      <details>
+        <summary>Como colocar o app na tela inicial</summary>
+        <p class="muted"><b>iPhone (Safari):</b> toque em Compartilhar (quadrado com seta) → <i>Adicionar à Tela de Início</i>.<br><b>Android (Chrome):</b> toque nos 3 pontinhos → <i>Adicionar à tela inicial</i> ou <i>Instalar app</i>.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<!-- scanner ao vivo -->
+<div class="modal" id="scanModal" hidden>
+  <div class="scanbox"><video id="video" playsinline webkit-playsinline muted autoplay></video><div class="reticle"></div></div>
+  <div class="scanbar">
+    <p id="scanStatus">Abrindo câmera…</p>
+    <div class="row">
+      <button class="btn secondary" id="scanPhoto">📸 Tirar foto</button>
+      <button class="btn danger" id="scanClose">Fechar</button>
+    </div>
+  </div>
+</div>
+<div class="busy" id="busy" hidden>Lendo o código…</div>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* =====================================================================
+   LEITOR DE CÓDIGO DE BARRAS (EAN-13, EAN-8, UPC-A) — sem bibliotecas
+   ===================================================================== */
+const Decoder = (() => {
+  const L_BITS = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  const PARITY = ['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+  const runsOf = bits => { const r=[]; let c=bits[0], n=0; for (const b of bits){ if(b===c) n++; else { r.push(n); c=b; n=1; } } r.push(n); return r; };
+  const compl = s => s.replace(/./g, c => c==='0' ? '1' : '0');
+  const PAT = { L:[], G:[], R:[] };
+  L_BITS.forEach((b,d) => { const r=compl(b); PAT.L[d]=runsOf(b); PAT.R[d]=runsOf(r); PAT.G[d]=runsOf([...r].reverse().join('')); });
+
+  const MIN_CONTRAST = 45;
+  const near = (x,u,t) => Math.abs(x-u) <= u*t;
+
+  function matchDigit(w, i, tables){
+    const T = w[i]+w[i+1]+w[i+2]+w[i+3]; if (!(T>0)) return null;
+    const k = 7/T, n0=w[i]*k, n1=w[i+1]*k, n2=w[i+2]*k, n3=w[i+3]*k;
+    let best=null, bestErr=1e9;
+    for (let t=0;t<tables.length;t++){
+      const tab = PAT[tables[t]];
+      for (let d=0; d<10; d++){
+        const p = tab[d];
+        const e0=Math.abs(n0-p[0]), e1=Math.abs(n1-p[1]), e2=Math.abs(n2-p[2]), e3=Math.abs(n3-p[3]);
+        const err=e0+e1+e2+e3;
+        if (err<bestErr){ bestErr=err; best={d, t:tables[t], mx:Math.max(e0,e1,e2,e3)}; }
+      }
+    }
+    return best && best.mx <= 1.0 ? best : null;
+  }
+
+  function checksumOk(digits){
+    let sum=0; const n=digits.length;
+    for (let i=0;i<n;i++){ const fromRight=n-1-i; sum += digits[i] * (fromRight%2===0 ? 1 : 3); }
+    return sum%10===0;
+  }
+
+  // tenta decodificar a partir do segmento k (primeira barra da guarda inicial)
+  function decodeAt(w, k, half){
+    const total = 3 + 4*half + 5 + 4*half + 3;
+    if (k+total > w.length) return null;
+    const m = (w[k]+w[k+1]+w[k+2])/3;
+    if (m < 1.1 || !near(w[k],m,.5) || !near(w[k+1],m,.5) || !near(w[k+2],m,.5)) return null;
+    if (k>0 && w[k-1] < m*3) return null;               // zona de silêncio
+    let i = k+3, parity=''; const digits=[];
+    const lt = half===6 ? ['L','G'] : ['L'];
+    for (let j=0;j<half;j++){ const r=matchDigit(w,i,lt); if(!r) return null; digits.push(r.d); parity+=r.t; i+=4; }
+    for (let j=0;j<5;j++) if (!near(w[i+j], m, .65)) return null;
+    i += 5;
+    for (let j=0;j<half;j++){ const r=matchDigit(w,i,['R']); if(!r) return null; digits.push(r.d); i+=4; }
+    for (let j=0;j<3;j++) if (!near(w[i+j], m, .7)) return null;
+    let all;
+    if (half===6){ const f=PARITY.indexOf(parity); if(f<0) return null; all=[f,...digits]; }
+    else { if (parity!=='LLLL') return null; all=digits; }
+    if (!checksumOk(all)) return null;
+    return all.join('');
+  }
+
+  function tryDecode(w, dark0, hits){
+    for (let k = dark0?0:1; k < w.length-42; k+=2){
+      let c = decodeAt(w,k,6) || decodeAt(w,k,4);
+      if (c) hits.set(c,(hits.get(c)||0)+1);
+    }
+  }
+
+  // sinal 1D -> larguras dos segmentos (com precisão de sub-pixel)
+  function toSegments(sig){
+    const n=sig.length; if (n<70) return null;
+    const s=new Float32Array(n); s[0]=sig[0]; s[n-1]=sig[n-1];
+    for (let i=1;i<n-1;i++) s[i]=(sig[i-1]+sig[i]*2+sig[i+1])*0.25;
+    const B=16, nb=Math.ceil(n/B);
+    const bmin=new Float32Array(nb).fill(255), bmax=new Float32Array(nb);
+    for (let i=0;i<n;i++){ const j=(i/B)|0, v=s[i]; if(v<bmin[j])bmin[j]=v; if(v>bmax[j])bmax[j]=v; }
+    const thr=new Float32Array(nb), flat=new Uint8Array(nb);
+    for (let j=0;j<nb;j++){
+      let lo=255, hi=0;
+      for (let q=Math.max(0,j-4); q<=Math.min(nb-1,j+4); q++){ if(bmin[q]<lo)lo=bmin[q]; if(bmax[q]>hi)hi=bmax[q]; }
+      thr[j]=(lo+hi)/2; flat[j]=(hi-lo<MIN_CONTRAST)?1:0;
+    }
+    const e=[]; let prev = !flat[0] && s[0]<thr[0], dark0=null;
+    for (let i=0;i<n-1;i++){
+      const j=(i/B)|0, j2=((i+1)/B)|0;
+      const d1 = !flat[j2] && s[i+1]<thr[j2];
+      if (d1!==prev){
+        const den=s[i+1]-s[i]; let p = den!==0 ? (thr[j]-s[i])/den : 0.5;
+        if (p<0) p=0; else if (p>1) p=1;
+        e.push(i+p); if (dark0===null) dark0=d1;
+      }
+      prev=d1;
+    }
+    if (e.length<44) return null;
+    const w=new Array(e.length-1);
+    for (let k=0;k<w.length;k++) w[k]=e[k+1]-e[k];
+    return {w, dark0};
+  }
+
+  function scanSignal(sig, hits){
+    const sg=toSegments(sig); if(!sg) return;
+    tryDecode(sg.w, sg.dark0, hits);
+    const n=sg.w.length;
+    const lastDark = ((n-1)%2===0) ? sg.dark0 : !sg.dark0;
+    tryDecode(sg.w.slice().reverse(), lastDark, hits);
+  }
+
+  const ANGLES = (() => {
+    const a=[]; for (let d=0; d<180; d+=8) a.push(d);
+    const dist = d => Math.min(d, Math.abs(d-90), 180-d);
+    return a.sort((x,y)=>dist(x)-dist(y));
+  })();
+
+  // gray: Uint8Array W*H. Retorna Map(código -> votos)
+  function decodeGray(gray, W, H, opts={}){
+    const hits=new Map(); const stopAt=opts.stopAt||2;
+    const S=Math.max(5, Math.round(Math.max(W,H)/150));
+    const cx=(W-1)/2, cy=(H-1)/2;
+    const sig=new Float32Array(Math.ceil(Math.hypot(W,H))+4);
+    const angles = opts.angles || ANGLES;
+    for (const deg of angles){
+      const th=deg*Math.PI/180, dx=Math.cos(th), dy=Math.sin(th), nx=-dy, ny=dx;
+      const ext = Math.abs(W*nx)+Math.abs(H*ny);
+      const offs=[0]; for (let t=S; t<ext/2; t+=S){ offs.push(t,-t); }
+      for (const t of offs){
+        const px=cx+t*nx, py=cy+t*ny;
+        // recorte da reta dentro da imagem
+        let s0=-1e9, s1=1e9;
+        if (Math.abs(dx)>1e-6){ let a=(0-px)/dx, b=(W-1-px)/dx; if(a>b)[a,b]=[b,a]; s0=Math.max(s0,a); s1=Math.min(s1,b); }
+        else if (px<0||px>W-1) continue;
+        if (Math.abs(dy)>1e-6){ let a=(0-py)/dy, b=(H-1-py)/dy; if(a>b)[a,b]=[b,a]; s0=Math.max(s0,a); s1=Math.min(s1,b); }
+        else if (py<0||py>H-1) continue;
+        if (s1-s0<70) continue;
+        let n=0;
+        for (let s=s0; s<=s1; s+=1){
+          const x=px+s*dx, y=py+s*dy, x0=x|0, y0=y|0;
+          const fx=x-x0, fy=y-y0, x1=x0+1<W?x0+1:x0, y1=y0+1<H?y0+1:y0;
+          const a=gray[y0*W+x0], b=gray[y0*W+x1], c=gray[y1*W+x0], d=gray[y1*W+x1];
+          sig[n++]=(a*(1-fx)+b*fx)*(1-fy)+(c*(1-fx)+d*fx)*fy;
+        }
+        scanSignal(sig.subarray(0,n), hits);
+        if (opts.stopAt){ for (const v of hits.values()) if (v>=stopAt) return hits; }
+      }
+    }
+    return hits;
+  }
+
+  function canvasToGray(canvas){
+    const W=canvas.width, H=canvas.height;
+    const d=canvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,W,H).data;
+    const g=new Uint8Array(W*H);
+    for (let i=0,j=0;i<g.length;i++,j+=4) g[i]=(d[j]*77+d[j+1]*150+d[j+2]*29)>>8;
+    return {gray:g,W,H};
+  }
+
+  function best(hits){ let bc=null,bv=0; for (const [c,v] of hits) if(v>bv){bv=v;bc=c;} return {code:bc, votes:bv}; }
+  return { decodeGray, canvasToGray, best };
+})();
+
+/* ---------- leitura a partir de imagem/vídeo ---------- */
+const NATIVE_FORMATS = ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','codabar'];
+let nativeDetector = null;
+async function getNative(){
+  if (nativeDetector !== null) return nativeDetector;
+  nativeDetector = false;
+  try {
+    if ('BarcodeDetector' in window){
+      const sup = await BarcodeDetector.getSupportedFormats();
+      const f = NATIVE_FORMATS.filter(x=>sup.includes(x));
+      if (f.length) nativeDetector = new BarcodeDetector({formats:f});
+    }
+  } catch { nativeDetector = false; }
+  return nativeDetector;
+}
+function makeCanvas(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+
+async function readFromSource(src, sw, sh){
+  // 1) leitor nativo do aparelho (Chrome/Android), se existir
+  const nd = await getNative();
+  if (nd){ try { const r = await nd.detect(src); if (r.length && r[0].rawValue) return r[0].rawValue; } catch {} }
+  // 2) leitor próprio, em vários tamanhos
+  const votes = new Map();
+  const dims = [1400, 900, 2000].filter((d,i)=> i<2 || Math.max(sw,sh)>2200);
+  for (const maxDim of dims){
+    const sc = Math.min(1, maxDim/Math.max(sw,sh));
+    const c = makeCanvas(Math.max(1,Math.round(sw*sc)), Math.max(1,Math.round(sh*sc)));
+    const ctx = c.getContext('2d',{willReadFrequently:true});
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(src, 0, 0, c.width, c.height);
+    const {gray,W,H} = Decoder.canvasToGray(c);
+    const hits = Decoder.decodeGray(gray, W, H, {stopAt:2});
+    for (const [k,v] of hits) votes.set(k,(votes.get(k)||0)+v);
+    const b = Decoder.best(votes);
+    if (b.votes>=2) return b.code;
+    await new Promise(r=>setTimeout(r,0));
+  }
+  return Decoder.best(votes).code;
+}
+
+async function fileToBitmap(file){
+  try { return await createImageBitmap(file, {imageOrientation:'from-image'}); } catch {}
+  try { return await createImageBitmap(file); } catch {}
+  return await new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{res(im);}; im.onerror=()=>rej(new Error('img')); im.src=u; });
+}
+
+/* ---------- utilidades ---------- */
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function money(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function codeKey(s){ const t=String(s||'').trim(); return /^\d+$/.test(t) ? t.replace(/^0+/,'') : t.toLowerCase(); }
+function parsePrice(s){ let t=String(s).replace(/[^\d,.\-]/g,''); if(t.includes(',')) t=t.replace(/\./g,'').replace(',','.'); const n=parseFloat(t); return Number.isFinite(n)&&n>=0 ? Math.round(n*100)/100 : NaN; }
+let toastTimer=null;
+function toast(msg, ms=2600){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true, ms); }
+function beep(){ try{ const A=window.AudioContext||window.webkitAudioContext; const a=new A(), o=a.createOscillator(), g=a.createGain(); o.frequency.value=1000; g.gain.value=.15; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();a.close();},120);}catch{} try{ navigator.vibrate&&navigator.vibrate(80);}catch{} }
+
+/* ---------- dados ---------- */
+const DB_KEY='unique-cell-products-v1', BK_KEY='unique-cell-last-backup';
+let products = load();
+function load(){ try{ const x=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); return Array.isArray(x)?x:[]; }catch{ return []; } }
+function save(){ try{ localStorage.setItem(DB_KEY, JSON.stringify(products)); return true; }catch{ alert('Não foi possível salvar neste aparelho. Exporte uma cópia de segurança e libere espaço no navegador.'); return false; } }
+function findByCode(code){ const k=codeKey(code); if(!k) return null; return products.find(p=>codeKey(p.barcode)===k)||null; }
+try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch{}
+
+/* ---------- abas ---------- */
+function switchPanel(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.panel===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  if (name==='list') renderList();
+  renderBackupNotice();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchPanel(b.dataset.panel)));
+
+/* ---------- consulta ---------- */
+function showResult(code){
+  const box=$('consultResult'); code=String(code||'').trim();
+  if(!code){ box.innerHTML='<div class="result nf"><div class="rmeta">Digite ou escaneie um código.</div></div>'; return; }
+  const p=findByCode(code);
+  if(p){
+    box.innerHTML = `<div class="result"><div class="rname">${esc(p.name)}</div><div class="rprice">${money(p.price)}</div>${p.warranty?`<div class="rmeta">Garantia/validade: <b>${esc(p.warranty)}</b></div>`:''}<div class="rcode">Código ${esc(p.barcode)}</div><button class="btn secondary small" id="resEdit">Editar produto</button></div>`;
+    $('resEdit').onclick=()=>startEdit(p.id);
+  } else {
+    box.innerHTML = `<div class="result nf"><div class="rname">Produto não cadastrado</div><div class="rmeta">Código ${esc(code)}</div><button class="btn primary" id="resAdd">Cadastrar este produto</button></div>`;
+    $('resAdd').onclick=()=>{ resetForm(); $('fCode').value=code; switchPanel('register'); checkDup(); $('fName').focus(); };
+  }
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function consultFound(code){ $('consultCode').value=code; showResult(code); }
+$('consultGo').onclick=()=>showResult($('consultCode').value);
+$('consultCode').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); showResult($('consultCode').value); } });
+$('consultScan').onclick=()=>openScanner(consultFound);
+$('consultPhoto').onclick=()=>pickPhoto(consultFound);
+
+/* ---------- cadastro ---------- */
+function resetForm(){ $('form').reset(); $('editId').value=''; $('formTitle').textContent='Cadastrar produto'; $('saveBtn').textContent='Salvar produto'; $('cancelEdit').hidden=true; $('dupHint').hidden=true; }
+function checkDup(){
+  const h=$('dupHint'), code=$('fCode').value, p=findByCode(code), editId=$('editId').value;
+  if(p && p.id!==editId){ h.hidden=false; h.textContent=`⚠ Este código já é de “${p.name}”. Se salvar, os dados dele serão atualizados.`; } else h.hidden=true;
+}
+function registerFound(code){ $('fCode').value=code; checkDup(); const p=findByCode(code); if(p && !$('editId').value){ fillForm(p, true); toast('Código já cadastrado — dados carregados'); } else { $('fName').focus(); } }
+$('fCode').addEventListener('input',checkDup);
+$('regScan').onclick=()=>openScanner(registerFound);
+$('regPhoto').onclick=()=>pickPhoto(registerFound);
+function fillForm(p, keepId){
+  $('editId').value=p.id; $('fCode').value=p.barcode||''; $('fName').value=p.name||''; $('fPrice').value=p.price!==''&&p.price!=null?String(p.price).replace('.',','):''; $('fWarranty').value=p.warranty||'';
+  $('formTitle').textContent='Editar produto'; $('saveBtn').textContent='Salvar alterações'; $('cancelEdit').hidden=false; checkDup();
+}
+function startEdit(id){ const p=products.find(x=>x.id===id); if(!p) return; switchPanel('register'); fillForm(p); }
+$('cancelEdit').onclick=()=>{ resetForm(); };
+$('form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const name=$('fName').value.trim(), price=parsePrice($('fPrice').value), code=$('fCode').value.trim();
+  if(!name){ alert('Digite o nome do produto.'); return; }
+  if(Number.isNaN(price)){ alert('Digite um preço válido. Ex.: 49,90'); return; }
+  let id=$('editId').value; let existing=id?products.find(p=>p.id===id):null;
+  const dup=findByCode(code);
+  if(dup && (!existing || dup.id!==existing.id)){ existing=dup; id=dup.id; }   // mesmo código: atualiza
+  const item={...(existing||{}), id: id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), barcode:code, name, price, warranty:$('fWarranty').value.trim()};
+  const idx=products.findIndex(p=>p.id===item.id);
+  if(idx>=0) products[idx]=item; else products.unshift(item);
+  if(!save()) return;
+  $('lastSaved').textContent=`Último salvo: ${item.name} — ${money(item.price)}`;
+  const wasEdit=!!$('editId').value; resetForm(); toast(wasEdit||existing?'Produto atualizado ✓':'Produto salvo ✓');
+  if(wasEdit) switchPanel('list'); else window.scrollTo(0,0);
+  renderBackupNotice();
+});
+
+/* ---------- lista ---------- */
+function renderList(){
+  const q=$('listSearch').value.toLocaleLowerCase('pt-BR').trim();
+  const arr=products.filter(p=>!q||[p.name,p.barcode].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'pt-BR'));
+  $('count').textContent=products.length;
+  $('listBox').innerHTML = arr.length ? arr.map(p=>`<div class="item"><div class="top"><div class="nm">${esc(p.name)}</div><div class="pr">${money(p.price)}</div></div><div class="mt">Código: ${esc(p.barcode||'—')}${p.warranty?' · Garantia/validade: '+esc(p.warranty):''}</div><div class="acts"><button class="btn secondary small" data-edit="${esc(p.id)}">Editar</button><button class="btn danger small" data-del="${esc(p.id)}">Excluir</button></div></div>`).join('') : '<div class="empty">Nenhum produto encontrado.</div>';
+}
+$('listSearch').addEventListener('input',renderList);
+$('listBox').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-edit]'), de=e.target.closest('[data-del]');
+  if(ed) startEdit(ed.dataset.edit);
+  if(de){ const p=products.find(x=>x.id===de.dataset.del); if(p && confirm(`Excluir “${p.name}”?`)){ products=products.filter(x=>x.id!==p.id); save(); renderList(); $('consultResult').innerHTML=''; renderBackupNotice(); } }
+});
+
+/* ---------- backup ---------- */
+function lastBackup(){ try{ return Number(localStorage.getItem(BK_KEY))||0; }catch{ return 0; } }
+function renderBackupNotice(){
+  const last=lastBackup(), days=last?Math.floor((Date.now()-last)/864e5):null;
+  const need = products.length>0 && (days===null || days>=7);
+  document.querySelectorAll('.backup-notice').forEach(el=>{ el.hidden=!need; if(need) el.innerHTML = days===null ? '💾 Você ainda não fez cópia de segurança. Vá em <b>Produtos → Exportar</b>.' : `💾 Sua última cópia de segurança foi há ${days} dias. Vá em <b>Produtos → Exportar</b>.`; });
+  $('backupInfo').textContent = last ? 'Última cópia: '+new Date(last).toLocaleString('pt-BR') : 'Nenhuma cópia feita ainda.';
+}
+$('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:'Unique Cell',version:2,exportedAt:new Date().toISOString(),products},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download='unique-cell-produtos.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+  try{ localStorage.setItem(BK_KEY,String(Date.now())); }catch{} renderBackupNotice(); toast('Cópia exportada ✓');
+};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const data=JSON.parse(await f.text()); const arr=Array.isArray(data)?data:data.products;
+    if(!Array.isArray(arr)||arr.some(p=>!p||!p.name)) throw new Error('formato');
+    if(!confirm(`Importar ${arr.length} produtos? Os que tiverem o mesmo código serão atualizados; os outros serão mantidos.`)) return;
+    let added=0, upd=0;
+    arr.forEach((p,i)=>{
+      const item={...p, id:String(p.id||('imp'+Date.now().toString(36)+i)), price:Number(p.price)||0};
+      const byId=products.findIndex(x=>x.id===item.id); const dup=item.barcode?findByCode(item.barcode):null;
+      if(dup){ products[products.indexOf(dup)]={...dup,...item,id:dup.id}; upd++; }
+      else if(byId>=0){ products[byId]={...products[byId],...item}; upd++; }
+      else { products.push(item); added++; }
+    });
+    save(); renderList(); renderBackupNotice(); toast(`Importado: ${added} novos, ${upd} atualizados`);
+  }catch{ alert('Não foi possível importar. Use um arquivo exportado por este aplicativo.'); }
+  finally{ e.target.value=''; }
+};
+
+/* =====================================================================
+   SCANNER — câmera ao vivo e foto
+   ===================================================================== */
+const Scan = { stream:null, timer:null, running:false, cb:null, votes:new Map(), canvas:null };
+const video=$('video');
+function setStatus(t){ $('scanStatus').textContent=t; }
+function stopCamera(){
+  Scan.running=false; clearTimeout(Scan.timer);
+  if(Scan.stream){ Scan.stream.getTracks().forEach(t=>t.stop()); Scan.stream=null; }
+  try{ video.pause(); }catch{} video.srcObject=null;
+}
+function closeScanner(){ stopCamera(); $('scanModal').hidden=true; }
+async function openScanner(cb){
+  Scan.cb=cb; Scan.votes.clear(); $('scanModal').hidden=false; setStatus('Abrindo câmera…');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ setStatus('Este navegador não liberou a câmera. Use o botão “Tirar foto” ou digite o código.'); return; }
+  try{
+    Scan.stream = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720}}});
+  }catch(err){
+    const n=err&&err.name;
+    setStatus(n==='NotAllowedError'||n==='SecurityError' ? 'Câmera bloqueada. Permita o acesso à câmera nas configurações do navegador, ou use “Tirar foto”.' : n==='NotFoundError' ? 'Nenhuma câmera encontrada. Use “Tirar foto”.' : 'Não consegui abrir a câmera. Use o botão “Tirar foto” ou digite o código.');
+    return;
+  }
+  video.muted=true; video.setAttribute('playsinline',''); video.srcObject=Scan.stream;
+  try{ await video.play(); }catch{}
+  setStatus('Aponte para o código de barras');
+  Scan.running=true; tick();
+}
+async function tick(){
+  if(!Scan.running) return;
+  try{
+    if(video.readyState>=2 && video.videoWidth>0){
+      const code = await detectFrame();
+      if(code && Scan.running){ const cb=Scan.cb; closeScanner(); beep(); cb&&cb(code); return; }
+    }
+  }catch{}
+  if(Scan.running) Scan.timer=setTimeout(tick, 90);
+}
+async function detectFrame(){
+  const vw=video.videoWidth, vh=video.videoHeight;
+  const nd=await getNative();
+  if(nd){ try{ const r=await nd.detect(video); if(r.length&&r[0].rawValue) return r[0].rawValue; }catch{} return null; }
+  const sc=Math.min(1, 960/Math.max(vw,vh));
+  if(!Scan.canvas) Scan.canvas=makeCanvas(1,1);
+  const c=Scan.canvas; c.width=Math.round(vw*sc); c.height=Math.round(vh*sc);
+  c.getContext('2d',{willReadFrequently:true}).drawImage(video,0,0,c.width,c.height);
+  const {gray,W,H}=Decoder.canvasToGray(c);
+  const hits=Decoder.decodeGray(gray,W,H,{stopAt:2});
+  for(const [k,v] of hits) Scan.votes.set(k,(Scan.votes.get(k)||0)+v);
+  const b=Decoder.best(Scan.votes); return b.votes>=2 ? b.code : null;
+}
+$('scanClose').onclick=closeScanner;
+$('scanPhoto').onclick=()=>{ const cb=Scan.cb; stopCamera(); $('scanModal').hidden=true; pickPhoto(cb); };
+
+/* foto do código de barras */
+let photoCb=null;
+function pickPhoto(cb){ photoCb=cb; $('photoInput').value=''; $('photoInput').click(); }
+$('photoInput').addEventListener('change', async e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const cb=photoCb; $('busy').hidden=false;
+  await new Promise(r=>setTimeout(r,30));
+  let code=null;
+  try{ const bmp=await fileToBitmap(f); const sw=bmp.width||bmp.naturalWidth, sh=bmp.height||bmp.naturalHeight; code=await readFromSource(bmp,sw,sh); if(bmp.close) bmp.close(); }catch(err){ console.error(err); }
+  $('busy').hidden=true;
+  if(code){ beep(); cb&&cb(code); }
+  else { toast('Não consegui ler o código. Chegue mais perto, com boa luz, deixando o código reto e inteiro na foto — ou digite.', 5000); }
+});
+
+/* ---------- início ---------- */
+if(/FBAN|FBAV|Instagram|Line\/|MicroMessenger|; wv\)/i.test(navigator.userAgent)) $('inAppWarn').hidden=false;
+if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+renderList(); renderBackupNotice();
+window.__uc = { Decoder, readFromSource, fileToBitmap, products:()=>products };   // usado nos testes
+})();
+</script>
+</body>
+</html>
