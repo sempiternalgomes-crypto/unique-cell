@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<link rel="icon" type="image/jpeg" href="./IMG_6224.jpeg">
+<link rel="apple-touch-icon" href="./IMG_6224.jpeg">
+<title>Unique Cell · Controle de produtos</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --site-primary: #F5C400;
+  --site-secondary: #242424;
+  --site-background: #111111;
+  --site-on-primary: #111111;
+  --site-on-secondary: #FFFFFF;
+  --site-on-background: #FFFFFF;
+  --site-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --bg: light-dark(#f4f4f4, #111111);
+  --surface: light-dark(#ffffff, #1d1d1d);
+  --text: light-dark(#151515, #f7f7f7);
+  --muted: light-dark(#6d6d6d, #b0b0b0);
+  --line: light-dark(#e1e1e1, #363636);
+  --field: light-dark(#f8f8f8, #292929);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--site-font-body); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+#app { min-height: 100vh; background-color: var(--site-background); border-radius: 0; color: var(--site-on-background); }
+.topbar { background: var(--site-secondary); color: var(--site-on-secondary); padding: 18px 16px 14px; border-bottom: 3px solid var(--site-primary); }
+.brand { display:flex; align-items:center; gap:12px; max-width:900px; margin:auto; }
+.logo-placeholder { width:48px; height:48px; border:1.5px dashed var(--site-primary); border-radius:12px; display:grid; place-items:center; color:var(--site-primary); font-size:11px; text-align:center; flex-shrink:0; overflow:hidden; }
+.logo-placeholder img { width:100%; height:100%; object-fit:contain; }
+.brand h1 { font-size: calc(23px * var(--site-heading-scale)); line-height:1.1; margin:0; color:var(--site-primary); letter-spacing:-.6px; }
+.brand p { margin:5px 0 0; color:#d0d0d0; font-size:12px; }
+main { max-width:900px; margin:auto; padding:18px 14px 40px; }
+.tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:18px; }
+.tab { border:1px solid var(--line); border-radius:10px; padding:11px 5px; background:var(--surface); color:var(--text); font-weight:700; font-size:13px; }
+.tab.active { background:var(--site-primary); color:var(--site-on-primary); border-color:var(--site-primary); }
+.panel { display:none; } .panel.active { display:block; }
+.card { background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:calc(15px * var(--site-radius-scale)); padding:16px; margin-bottom:14px; }
+h2 { font-size:calc(18px * var(--site-heading-scale)); margin:0 0 14px; }
+.subtle { color:var(--muted); font-size:13px; line-height:1.45; }
+.primary, .secondary, .danger { border:0; border-radius:10px; padding:12px 14px; font-weight:750; }
+.primary { background:var(--site-primary); color:var(--site-on-primary); }
+.secondary { background:var(--field); color:var(--text); border:1px solid var(--line); }
+.danger { background:#9f2525; color:white; }
+.full { width:100%; }
+.actions { display:flex; flex-wrap:wrap; gap:8px; }
+.field-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.field.wide { grid-column:1 / -1; }
+label { font-size:12px; font-weight:700; color:var(--muted); }
+input, select, textarea { width:100%; min-width:0; border:1px solid var(--line); background:var(--field); color:var(--text); border-radius:9px; padding:12px 11px; }
+textarea { resize:vertical; min-height:78px; }
+.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.stat { border:1px solid var(--line); background:var(--surface); border-radius:12px; padding:12px 10px; }
+.stat strong { display:block; font-size:21px; color:var(--site-primary); }
+.stat span { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+.search-row { display:flex; gap:8px; margin-bottom:12px; }
+.search-row input { flex:1; }
+.product-list { display:grid; gap:10px; }
+.product { display:flex; gap:12px; align-items:flex-start; border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:12px; padding:13px; }
+.product-mark { flex-shrink:0; width:42px; height:42px; border-radius:10px; display:grid; place-items:center; background:color-mix(in srgb, var(--site-primary) 20%, transparent); color:var(--site-primary); font-size:19px; }
+.product-info { flex:1; min-width:0; }
+.product-info h3 { margin:0 0 5px; font-size:15px; overflow-wrap:anywhere; }
+.product-info p { margin:3px 0; color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
+.product-price { font-size:16px; font-weight:800; color:var(--site-primary); margin:5px 0; }
+.product-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+.product-actions button { font-size:12px; padding:7px 9px; }
+#scannerWrap { display:none; margin-top:12px; }
+#scannerVideo { width:100%; max-height:340px; object-fit:cover; border-radius:12px; background:#000; }
+.status { border-radius:9px; padding:10px 12px; background:var(--field); color:var(--muted); font-size:13px; margin-top:10px; }
+.empty { text-align:center; border:1px dashed var(--line); border-radius:12px; padding:24px 14px; color:var(--muted); font-size:13px; }
+.tag { display:inline-block; border-radius:5px; padding:3px 6px; background:var(--field); font-size:11px; color:var(--muted); }
+.footer-note { text-align:center; color:var(--muted); font-size:11px; padding:8px; }
+@media (max-width:480px) { .field-grid { grid-template-columns:1fr; } .field.wide { grid-column:auto; } .stat { padding:10px 8px; } .stat strong { font-size:18px; } .search-row { flex-wrap:wrap; } .search-row input { flex-basis:100%; } }
+</style>
+</head>
+<body>
+<div id="app">
+<header class="topbar"><div class="brand"><label class="logo-placeholder" for="logoInput" id="logoPreview">INSERIR<br>LOGO</label><input id="logoInput" type="file" accept="image/*" hidden><div><h1>Unique Cell</h1><p>Controle interno de produtos</p></div></div></header>
+<main>
+<div class="tabs" role="tablist"><button class="tab active" data-panel="scan">⌕ Buscar produto</button><button class="tab" data-panel="catalog">▤ Catálogo</button><button class="tab" data-panel="manage">＋ Cadastrar</button></div>
+<section class="panel active" id="panel-scan">
+<div class="stat-grid"><div class="stat"><strong id="totalProducts">0</strong><span>Produtos</span></div><div class="stat"><strong id="totalStock">0</strong><span>Unidades em estoque</span></div><div class="stat"><strong id="totalCategories">0</strong><span>Categorias</span></div></div>
+<div class="card"><h2>Encontrar pelo código de barras</h2><p class="subtle">Aponte a câmera para o código de barras ou digite o código para localizar um produto cadastrado.</p><div class="actions"><button class="primary" id="startScanner">Abrir câmera e escanear</button><button class="secondary" id="stopScanner" hidden>Fechar câmera</button></div><div id="scannerWrap"><video id="scannerVideo" playsinline muted></video><div class="status" id="scannerStatus">Preparando câmera…</div></div><div class="field" style="margin-top:13px"><label for="barcodeSearch">Código de barras / SKU</label><div class="search-row"><input id="barcodeSearch" placeholder="Ex.: 7890000000000" autocomplete="off"><button class="primary" id="lookupBarcode">Buscar</button></div></div><div id="lookupResult"></div></div>
+<div class="card"><h2>Busca rápida</h2><input id="quickSearch" placeholder="Nome, marca, categoria ou código…"><p class="subtle">Os produtos encontrados aparecem abaixo.</p><div class="product-list" id="quickResults"></div></div>
+</section>
+<section class="panel" id="panel-catalog"><div class="card"><h2>Catálogo de produtos</h2><div class="field-grid"><div class="field"><label for="catalogSearch">Pesquisar</label><input id="catalogSearch" placeholder="Nome ou código"></div><div class="field"><label for="categoryFilter">Categoria</label><select id="categoryFilter"><option value="">Todas as categorias</option></select></div></div></div><div class="product-list" id="catalogResults"></div></section>
+<section class="panel" id="panel-manage"><div class="card"><h2 id="formTitle">Adicionar item ao catálogo</h2><p class="subtle">Cadastre um produto por vez. O código de barras pode ser digitado ou lido com a câmera na aba “Buscar produto”.</p><form id="productForm"><input type="hidden" id="editId"><div class="field-grid"><div class="field wide"><label for="pName">Nome do produto *</label><input id="pName" required placeholder="Ex.: Cabo USB-C 1 metro"></div><div class="field"><label for="pBarcode">Código de barras</label><input id="pBarcode" inputmode="numeric" placeholder="EAN / GTIN"></div><div class="field"><label for="pSku">SKU / código interno</label><input id="pSku" placeholder="Opcional"></div><div class="field"><label for="pCategory">Categoria *</label><input id="pCategory" list="categoryOptions" required placeholder="Ex.: Cabos"><datalist id="categoryOptions"><option value="Cabos"><option value="Carregadores"><option value="Fones"><option value="Capas"><option value="Películas"><option value="Informática"><option value="Celulares"><option value="Outros"></datalist></div><div class="field"><label for="pBrand">Marca</label><input id="pBrand" placeholder="Opcional"></div><div class="field"><label for="pPrice">Preço de venda (R$) *</label><input id="pPrice" type="number" min="0" step="0.01" required placeholder="0,00"></div><div class="field"><label for="pCost">Custo (R$)</label><input id="pCost" type="number" min="0" step="0.01" placeholder="Opcional"></div><div class="field"><label for="pStock">Quantidade em estoque</label><input id="pStock" type="number" min="0" step="1" value="0"></div><div class="field"><label for="pWarranty">Garantia</label><input id="pWarranty" placeholder="Ex.: 90 dias"></div><div class="field wide"><label for="pNotes">Observações / especificações</label><textarea id="pNotes" placeholder="Compatibilidade, cor, modelo, detalhes…"></textarea></div></div><div class="actions" style="margin-top:15px"><button class="primary" type="submit" id="saveProduct">Salvar produto</button><button class="secondary" type="button" id="clearForm">Limpar campos</button></div></form></div><div class="card"><h2>Dados e cópia de segurança</h2><p class="subtle">Os dados ficam salvos neste navegador e aparelho. Exporte um arquivo JSON para fazer backup ou importar o catálogo em outro aparelho.</p><div class="actions"><button class="secondary" id="exportData">Exportar catálogo</button><button class="secondary" id="importButton">Importar catálogo</button><input type="file" id="importFile" accept="application/json,.json" hidden></div><p class="subtle" style="margin-top:12px">Importar pode substituir o catálogo atual. Faça uma exportação antes.</p></div></section>
+<p class="footer-note">Unique Cell · Ferramenta interna · Os dados deste protótipo ficam no armazenamento local do navegador.</p>
+</main></div>
+<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const DB_KEY = 'unique-cell-products-v1';
+let products = loadProducts();
+let stream = null, detector = null, scanLoop = false, scanSeen = '';
+function loadProducts(){ try { const x=JSON.parse(localStorage.getItem(DB_KEY)||'[]'); return Array.isArray(x)?x:[]; } catch { return []; } }
+function persist(){ try { localStorage.setItem(DB_KEY, JSON.stringify(products)); } catch(e) { alert('Não foi possível salvar. Exporte o catálogo e confira o espaço disponível no navegador.'); } }
+function money(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function switchPanel(name){ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name)); document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name)); if(name==='catalog') renderCatalog(); if(name==='scan') renderQuick(); if(name==='manage') $('pName').focus({preventScroll:true}); }
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchPanel(b.dataset.panel)));
+function refreshStats(){ $('totalProducts').textContent=products.length; $('totalStock').textContent=products.reduce((n,p)=>n+Number(p.stock||0),0); $('totalCategories').textContent=new Set(products.map(p=>(p.category||'').trim()).filter(Boolean)).size; renderCategoryFilter(); }
+function renderCategoryFilter(){ const sel=$('categoryFilter'), old=sel.value; const cats=[...new Set(products.map(p=>p.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')); sel.innerHTML='<option value="">Todas as categorias</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''); if(cats.includes(old)) sel.value=old; }
+function card(p){return `<article class="product"><div class="product-mark">▦</div><div class="product-info"><h3>${esc(p.name)}</h3><p>${esc(p.brand||'Sem marca')} · <span class="tag">${esc(p.category||'Sem categoria')}</span></p><div class="product-price">${money(p.price)}</div><p>Código: ${esc(p.barcode||'—')} ${p.sku?'· SKU: '+esc(p.sku):''}</p><p>Estoque: <b>${Number(p.stock||0)}</b> · Garantia: ${esc(p.warranty||'Não informada')}</p>${p.notes?`<p>${esc(p.notes)}</p>`:''}<div class="product-actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary" data-stock="${esc(p.id)}">Ajustar estoque</button><button class="danger" data-delete="${esc(p.id)}">Excluir</button></div></div></article>`;}
+function bindCards(root){root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editProduct(b.dataset.edit));root.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteProduct(b.dataset.delete));root.querySelectorAll('[data-stock]').forEach(b=>b.onclick=()=>adjustStock(b.dataset.stock));}
+function renderList(root, arr){root.innerHTML=arr.length?arr.map(card).join(''):'<div class="empty">Nenhum produto encontrado. Cadastre um item para começar.</div>';bindCards(root);}
+function matches(p,q){q=q.toLocaleLowerCase('pt-BR').trim();return !q||[p.name,p.barcode,p.sku,p.brand,p.category,p.notes].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));}
+function renderQuick(){renderList($('quickResults'),products.filter(p=>matches(p,$('quickSearch').value)).slice(0,30));}
+function renderCatalog(){const q=$('catalogSearch').value,cat=$('categoryFilter').value;renderList($('catalogResults'),products.filter(p=>matches(p,q)&&(!cat||p.category===cat)).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')));}
+$('quickSearch').addEventListener('input',renderQuick);$('catalogSearch').addEventListener('input',renderCatalog);$('categoryFilter').addEventListener('change',renderCatalog);
+function lookup(code){code=String(code||'').trim();if(!code){$('lookupResult').innerHTML='<div class="status">Digite um código de barras ou SKU.</div>';return;}const p=products.find(p=>String(p.barcode||'').trim()===code||String(p.sku||'').trim().toLocaleLowerCase('pt-BR')===code.toLocaleLowerCase('pt-BR'));$('lookupResult').innerHTML=p?card(p):`<div class="status">Produto não encontrado para “${esc(code)}”. Você pode cadastrá-lo na aba <b>Cadastrar</b>.</div><button class="primary" id="addScanned" style="margin-top:8px">Cadastrar este produto</button>`;if(p)bindCards($('lookupResult'));else $('addScanned').onclick=()=>{clearForm();$('pBarcode').value=code;switchPanel('manage');};}
+$('lookupBarcode').onclick=()=>lookup($('barcodeSearch').value);$('barcodeSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookup($('barcodeSearch').value);}});
+function clearForm(){ $('productForm').reset();$('editId').value='';$('pStock').value='0';$('formTitle').textContent='Adicionar item ao catálogo';$('saveProduct').textContent='Salvar produto'; }
+$('clearForm').onclick=clearForm;
+$('productForm').addEventListener('submit',e=>{e.preventDefault();const id=$('editId').value||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));const item={id,name:$('pName').value.trim(),barcode:$('pBarcode').value.trim(),sku:$('pSku').value.trim(),category:$('pCategory').value.trim(),brand:$('pBrand').value.trim(),price:Number($('pPrice').value),cost:$('pCost').value===''?'':Number($('pCost').value),stock:Math.max(0,Math.floor(Number($('pStock').value||0))),warranty:$('pWarranty').value.trim(),notes:$('pNotes').value.trim()};if(!item.name||!item.category){alert('Preencha o nome e a categoria.');return;}const index=products.findIndex(p=>p.id===id);if(index>=0)products[index]=item;else products.unshift(item);persist();refreshStats();renderQuick();renderCatalog();clearForm();switchPanel('catalog');alert(index>=0?'Produto atualizado.':'Produto cadastrado.');});
+function editProduct(id){const p=products.find(p=>p.id===id);if(!p)return;switchPanel('manage');$('editId').value=p.id;for(const [field,key] of Object.entries({pName:'name',pBarcode:'barcode',pSku:'sku',pCategory:'category',pBrand:'brand',pPrice:'price',pCost:'cost',pStock:'stock',pWarranty:'warranty',pNotes:'notes'}))$(field).value=p[key]??'';$('formTitle').textContent='Editar produto';$('saveProduct').textContent='Salvar alterações';window.scrollTo({top:0,behavior:'smooth'});}
+function deleteProduct(id){const p=products.find(p=>p.id===id);if(!p||!confirm(`Excluir “${p.name}” do catálogo?`))return;products=products.filter(p=>p.id!==id);persist();refreshStats();renderQuick();renderCatalog();lookupResultClear();}
+function lookupResultClear(){ $('lookupResult').innerHTML=''; }
+function adjustStock(id){const p=products.find(p=>p.id===id);if(!p)return;const raw=prompt(`Estoque atual de ${p.name}: ${p.stock||0}\nDigite a nova quantidade:`,String(p.stock||0));if(raw===null)return;const n=Number(raw);if(!Number.isInteger(n)||n<0){alert('Digite um número inteiro igual ou maior que zero.');return;}p.stock=n;persist();refreshStats();renderQuick();renderCatalog();lookup($('barcodeSearch').value);}
+$('exportData').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Unique Cell',version:1,exportedAt:new Date().toISOString(),products},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='unique-cell-catalogo.json';a.click();URL.revokeObjectURL(url);};
+$('importButton').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const arr=Array.isArray(data)?data:data.products;if(!Array.isArray(arr)||arr.some(p=>!p||!p.name))throw new Error('Formato inválido');if(!confirm(`Importar ${arr.length} produtos e substituir o catálogo atual?`))return;products=arr.map((p,i)=>({...p,id:String(p.id||('import'+Date.now()+i))}));persist();refreshStats();renderQuick();renderCatalog();alert('Catálogo importado.');}catch(err){alert('Não foi possível importar: confira se o arquivo JSON foi exportado por este aplicativo.');}finally{e.target.value='';}};
+$('logoInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(f.size>3*1024*1024){alert('Escolha uma imagem de até 3 MB.');return;}const r=new FileReader();r.onload=()=>{const preview=$('logoPreview');preview.innerHTML='';const img=document.createElement('img');img.src=r.result;img.alt='Logo da Unique Cell';preview.appendChild(img);try{localStorage.setItem('unique-cell-logo',r.result);}catch{}};r.readAsDataURL(f);});
+try{const saved=localStorage.getItem('unique-cell-logo');if(saved){const img=document.createElement('img');img.src=saved;img.alt='Logo da Unique Cell';$('logoPreview').innerHTML='';$('logoPreview').appendChild(img);}}catch{}
+async function startScanner(){const wrap=$('scannerWrap'),video=$('scannerVideo'),status=$('scannerStatus');wrap.style.display='block';$('startScanner').hidden=true;$('stopScanner').hidden=false;scanSeen='';if(!navigator.mediaDevices?.getUserMedia){status.textContent='Este navegador não disponibiliza acesso à câmera. Digite o código manualmente ou abra a página em um navegador compatível usando HTTPS.';return;}if(!('BarcodeDetector' in window)){status.textContent='A leitura automática de código de barras não é compatível com este navegador. Digite o código no campo abaixo; no Android, experimente o Chrome atualizado.';try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});video.srcObject=stream;await video.play();}catch(e){}return;}try{const supported=await BarcodeDetector.getSupportedFormats();const wanted=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','codabar'];detector=new BarcodeDetector({formats:wanted.filter(x=>supported.includes(x))});if(!detector){status.textContent='Formato de código de barras não suportado neste aparelho.';return;}stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});video.srcObject=stream;await video.play();status.textContent='Aponte a câmera para o código de barras. Mantenha-o dentro da imagem.';scanLoop=true;requestAnimationFrame(scanFrame);}catch(e){status.textContent='Não foi possível abrir a câmera. Autorize o acesso e abra o app por HTTPS; em arquivo local alguns navegadores bloqueiam a câmera.';}}
+async function scanFrame(){if(!scanLoop||!detector||$('scannerVideo').readyState<2){if(scanLoop)requestAnimationFrame(scanFrame);return;}try{const codes=await detector.detect($('scannerVideo'));if(codes.length){const value=codes[0].rawValue;if(value&&value!==scanSeen){scanSeen=value;$('barcodeSearch').value=value;lookup(value);$('scannerStatus').textContent='Código lido: '+value+'. Se não estiver cadastrado, adicione-o no formulário.';if(navigator.vibrate)navigator.vibrate(80);}}}catch{}if(scanLoop)requestAnimationFrame(scanFrame);}
+function stopScanner(){scanLoop=false;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}$('scannerVideo').srcObject=null;$('scannerWrap').style.display='none';$('startScanner').hidden=false;$('stopScanner').hidden=true;}
+$('startScanner').onclick=startScanner;$('stopScanner').onclick=stopScanner;document.addEventListener('visibilitychange',()=>{if(document.hidden&&stream)stopScanner();});
+// Leitor alternativo para navegadores sem BarcodeDetector, incluindo Safari no iPhone.
+let zxingReader = null, zxingControls = null;
+async function startScanner(){
+  const wrap=$('scannerWrap'),video=$('scannerVideo'),status=$('scannerStatus');
+  wrap.style.display='block';$('startScanner').hidden=true;$('stopScanner').hidden=false;
+  if(!navigator.mediaDevices?.getUserMedia){status.textContent='Este navegador não liberou a câmera. Digite o código manualmente.';return;}
+  try {
+    if(window.ZXingBrowser?.BrowserMultiFormatReader){
+      if(zxingControls){try{zxingControls.stop();}catch{}zxingControls=null;}
+      if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+      stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+      video.setAttribute('playsinline','');video.setAttribute('muted','');video.muted=true;video.srcObject=stream;
+      await video.play();
+      zxingReader=new ZXingBrowser.BrowserMultiFormatReader();
+      status.textContent='Aponte a câmera para o código de barras e mantenha-o focado.';
+      zxingControls=await zxingReader.decodeFromVideoDevice(undefined,video,(result,error)=>{
+        if(result){const value=result.getText();if(value&&value!==scanSeen){scanSeen=value;$('barcodeSearch').value=value;lookup(value);status.textContent='Código lido: '+value;}}
+      });
+      return;
+    }
+    status.textContent='O leitor não carregou. Confira sua conexão com a internet e atualize a página.';
+  } catch(e){status.textContent='Não foi possível abrir a câmera. Autorize o acesso à câmera e tente novamente.';}
+}
+function stopScanner(){scanLoop=false;if(zxingControls){try{zxingControls.stop();}catch{}zxingControls=null;}if(zxingReader){try{zxingReader.reset();}catch{}zxingReader=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}$('scannerVideo').srcObject=null;$('scannerWrap').style.display='none';$('startScanner').hidden=false;$('stopScanner').hidden=true;}
+refreshStats();renderQuick();renderCatalog();
+})();
+</script>
+</body>
+</html>
